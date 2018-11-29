@@ -61,7 +61,7 @@ namespace TIGTestBench
                     return mytype;
                 }
             }
-          //  if(assembly.GetTypes().Where(p =>            
+                 
             return null;
             }
           
