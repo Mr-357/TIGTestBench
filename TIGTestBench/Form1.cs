@@ -17,12 +17,14 @@ namespace TIGTestBench
 {
     public partial class Form1 : Form
     {
+        private Spil spil = new Spil();
         private Stopwatch time = new Stopwatch();
         private List<Karta> Talon = new List<Karta>();
         private List<Karta> Spil = new List<Karta>();
         Type loaded;
         public Form1()
         {
+            
             InitializeComponent();
             //  loadDLL();
             for (int i = 2; i <= 10; i++)
@@ -37,6 +39,7 @@ namespace TIGTestBench
             comboBox2.Items.Add(Boja.Tref);
             comboBox2.Items.Add(Boja.Karo);
             comboBox2.Items.Add(Boja.Herz);
+            spil.Promesaj();
         }
         private Type loadDLL()
         {
@@ -65,36 +68,44 @@ namespace TIGTestBench
                  
             return null;
             }
-          
-       
 
+
+        private string ListaKarataToString(List<Karta> k)
+        {
+            string ret = "";
+            foreach (Karta karta in k)
+            {
+                ret += karta.Boja + karta.Broj + " ";
+            }
+            return ret;
+        }
         private void btnTest_Click(object sender, EventArgs e)
         {
-            //  IIgra igra = new _16022.MakaoBot();
-            if (loaded == null)
-                loadDLL();
-            IIgra igra = (IIgra)Activator.CreateInstance(loaded);
+             _16022.MakaoBot igra = new _16022.MakaoBot();
+            /*if (loaded == null)
+                throw new Exception("nema bot(ova)");
+           IIgra igra = (IIgra)Activator.CreateInstance(loaded);*/
             List < Karta > r = new List<Karta>();
-            /* for (int i = 2; i <= 6; i++)
+             for (int i = 2; i <= 6; i++)
              {
                  Karta k = new Karta();
                  k.Boja = (Boja)(i % 4 + 1) ;
                  k.Broj = i.ToString();
                  r.Add(k);
-             }*/
-            for (int i = 0; i < 4; i++)
+             }
+            /*for (int i = 0; i < 4; i++)
             {
                 Karta k = new Karta();
                 k.Boja = (Boja)(i + 1);
                 k.Broj = "A";
                 r.Add(k);
-            }
+            }*/
             igra.SetRuka(r);
-            
+            label5.Text = ListaKarataToString(r);
             List<Karta> t = new List<Karta>();
             Karta top = new Karta();
             top.Boja = (Boja)comboBox2.SelectedItem;
-            top.Broj = comboBox1.SelectedText;
+            top.Broj = comboBox1.SelectedItem.ToString();
             t.Add(top);
             
             igra.Bacenekarte(t, top.Boja, 6);
@@ -115,6 +126,11 @@ namespace TIGTestBench
         private void button3_Click(object sender, EventArgs e)
         {
             loadDLL();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            timer1.Stop();
         }
     }
 }
