@@ -87,7 +87,7 @@ namespace TIGTestBench
             spil.Promesaj();
             if (loaded == null)
                 throw new Exception("nema bot(ova)");
-           IIgra igra = (IIgra)Activator.CreateInstance(loaded);
+           igra = (IIgra)Activator.CreateInstance(loaded);
             List < Karta > r = new List<Karta>();
              for (int i = 0; i <= 5; i++)
              {
@@ -113,8 +113,11 @@ namespace TIGTestBench
             
             igra.Bacenekarte(t, top.Boja, 6);
             time.Start();
-            timer1.Start();
+          //  timer1.Start();
             igra.BeginBestMove();
+
+            ShowResults();
+            //////////////////////////////////////////
            /* time.Stop();
             string potez = "";
             potez += igra.BestMove.Tip.ToString()+"\r\n";
@@ -124,7 +127,9 @@ namespace TIGTestBench
                 potez += k.Boja;
                 potez += "\r\n";
             }
-            MessageBox.Show("zavrsio za"+time.ElapsedMilliseconds.ToString()+"ms \r\n potez: \r\n"+potez);*/
+            MessageBox.Show("zavrsio za"+time.ElapsedMilliseconds.ToString()+"ms \r\n potez: \r\n"+potez);
+            time.Reset();*/
+            /////////////////////////////////////////
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -142,6 +147,7 @@ namespace TIGTestBench
         private void ShowResults()
         {
             igra.EndBestMove();
+            //time.Stop();
             time.Stop();
             string potez = "";
             potez += igra.BestMove.Tip.ToString() + "\r\n";
@@ -152,6 +158,7 @@ namespace TIGTestBench
                 potez += "\r\n";
             }
             MessageBox.Show("zavrsio za" + time.ElapsedMilliseconds.ToString() + "ms \r\n potez: \r\n" + potez);
+            time.Reset();
         }
     }
 }
