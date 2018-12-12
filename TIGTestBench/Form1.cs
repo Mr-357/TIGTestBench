@@ -21,13 +21,12 @@ namespace TIGTestBench
         private Stopwatch time = new Stopwatch();
         private List<Karta> Talon = new List<Karta>();
         private List<Karta> Spil = new List<Karta>();
-        private IIgra igra;
+        private IIgra bot1;
+        private IIgra bot2;
         Type loaded;
         public Form1()
         {
-            
             InitializeComponent();
-            //  loadDLL();
             for (int i = 2; i <= 10; i++)
             {
                 comboBox1.Items.Add(i.ToString());
@@ -40,33 +39,22 @@ namespace TIGTestBench
             comboBox2.Items.Add(Boja.Tref);
             comboBox2.Items.Add(Boja.Karo);
             comboBox2.Items.Add(Boja.Herz);
-          
         }
         private Type loadDLL()
         {
             Assembly assembly;
-
-            //foreach (string f in Directory.GetFiles("./", "*.dll"))
-            //{
-            //  if (f != "./TIG.AV.Karte.dll" )
-            //   {
             OpenFileDialog open = new OpenFileDialog();
             open.ShowDialog();
             string f = open.FileName;
             if (f != null && f != "")
             {
                 assembly = Assembly.LoadFile(f);
-
-                //   }
-
-                //  }
                 foreach (Type mytype in assembly.GetTypes()
-                    .Where(mytype => mytype.GetInterfaces().Contains(typeof(IIgra))))
+                .Where(mytype => mytype.GetInterfaces().Contains(typeof(IIgra))))
                 {
                    loaded= mytype;
                 }
             }
-                 
             return null;
             }
 
@@ -82,12 +70,11 @@ namespace TIGTestBench
         }
         private void btnTest_Click(object sender, EventArgs e)
         {
-            // _16022.MakaoBot igra = new _16022.MakaoBot();
             spil = new Spil();
             spil.Promesaj();
             if (loaded == null)
                 throw new Exception("nema bot(ova)");
-           igra = (IIgra)Activator.CreateInstance(loaded);
+
             List < Karta > r = new List<Karta>();
              for (int i = 0; i <= 5; i++)
              {
@@ -96,14 +83,7 @@ namespace TIGTestBench
                
                  r.Add(k);
              }
-            /*for (int i = 0; i < 4; i++)
-            {
-                Karta k = new Karta();
-                k.Boja = (Boja)(i + 1);
-                k.Broj = "A";
-                r.Add(k);
-            }*/
-            igra.SetRuka(r);
+            bot1.SetRuka(r);
             label5.Text = ListaKarataToString(r);
             List<Karta> t = new List<Karta>();
             Karta top = new Karta();
@@ -111,12 +91,18 @@ namespace TIGTestBench
             top.Broj = comboBox1.SelectedItem.ToString();
             t.Add(top);
             
-            igra.Bacenekarte(t, top.Boja, 6);
+            bot1.Bacenekarte(t, top.Boja, 6);
             time.Start();
-          //  timer1.Start();
-            igra.BeginBestMove();
+            timer1.Start();
+  
+            bot1.BeginBestMove();
 
-            ShowResults();
+            if (checkBox1.Checked)
+            {
+                timer1.Stop();
+                ShowResults();
+            }
+        
             //////////////////////////////////////////
            /* time.Stop();
             string potez = "";
@@ -132,33 +118,44 @@ namespace TIGTestBench
             /////////////////////////////////////////
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            loadDLL();
-        }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-          
+
             timer1.Stop();
             ShowResults();
         }
 
         private void ShowResults()
         {
-            igra.EndBestMove();
+            bot1.EndBestMove();
             //time.Stop();
             time.Stop();
             string potez = "";
-            potez += igra.BestMove.Tip.ToString() + "\r\n";
-            foreach (Karta k in igra.BestMove.Karte)
+            potez += bot1.BestMove.Tip.ToString() + "\r\n";
+            foreach (Karta k in bot1.BestMove.Karte)
             {
                 potez += k.Broj;
                 potez += k.Boja;
                 potez += "\r\n";
             }
-            MessageBox.Show("zavrsio za" + time.ElapsedMilliseconds.ToString() + "ms \r\n potez: \r\n" + potez);
+            string totaltime;
+            if (checkBox1.Checked)
+            {
+                totaltime = time.ElapsedMilliseconds.ToString();
+            }
+            else
+            {
+                totaltime = (time.ElapsedMilliseconds - timer1.Interval).ToString() ; // tehnicki vreme za zvanje endbestmove-a,treba da bude 0 ili <0
+            }
+            MessageBox.Show("zavrsio za" + totaltime + "ms \r\n potez: \r\n" + potez);
             time.Reset();
+        }
+
+        private void botToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            loadDLL();
+            bot1 = (IIgra)Activator.CreateInstance(loaded);
         }
     }
 }
