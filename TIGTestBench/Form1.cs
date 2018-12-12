@@ -39,6 +39,8 @@ namespace TIGTestBench
             comboBox2.Items.Add(Boja.Tref);
             comboBox2.Items.Add(Boja.Karo);
             comboBox2.Items.Add(Boja.Herz);
+            spil = new Spil();
+            spil.Promesaj();
         }
         private Type loadDLL()
         {
@@ -70,8 +72,7 @@ namespace TIGTestBench
         }
         private void btnTest_Click(object sender, EventArgs e)
         {
-            spil = new Spil();
-            spil.Promesaj();
+            
             if (loaded == null)
                 throw new Exception("nema bot(ova)");
 
@@ -80,17 +81,26 @@ namespace TIGTestBench
              {
                 Karta k = spil.Karte.Last();
                 spil.Karte.Remove(k);
-               
-                 r.Add(k);
+                r.Add(k);
              }
             bot1.SetRuka(r);
             label5.Text = ListaKarataToString(r);
+            Karta top;
             List<Karta> t = new List<Karta>();
-            Karta top = new Karta();
-            top.Boja = (Boja)comboBox2.SelectedItem;
-            top.Broj = comboBox1.SelectedItem.ToString();
+            if (checkBox2.Checked)
+            {
+                //dodaj proveru da izbaci warning ako forcujes kartu koja je vec prosla
+                top = new Karta();
+                top.Boja = (Boja)comboBox2.SelectedItem;
+                top.Broj = comboBox1.SelectedItem.ToString();
+            }
+            else
+            {
+                top = spil.Karte.Last();
+                spil.Karte.Remove(top);
+            }
+            label6.Text = top.Boja.ToString() + top.Broj.ToString();
             t.Add(top);
-            
             bot1.Bacenekarte(t, top.Boja, 6);
             time.Start();
             timer1.Start();
@@ -102,20 +112,6 @@ namespace TIGTestBench
                 timer1.Stop();
                 ShowResults();
             }
-        
-            //////////////////////////////////////////
-           /* time.Stop();
-            string potez = "";
-            potez += igra.BestMove.Tip.ToString()+"\r\n";
-            foreach (Karta k in igra.BestMove.Karte)
-            {
-                potez += k.Broj;
-                potez += k.Boja;
-                potez += "\r\n";
-            }
-            MessageBox.Show("zavrsio za"+time.ElapsedMilliseconds.ToString()+"ms \r\n potez: \r\n"+potez);
-            time.Reset();*/
-            /////////////////////////////////////////
         }
 
 
@@ -129,7 +125,6 @@ namespace TIGTestBench
         private void ShowResults()
         {
             bot1.EndBestMove();
-            //time.Stop();
             time.Stop();
             string potez = "";
             potez += bot1.BestMove.Tip.ToString() + "\r\n";
@@ -146,7 +141,7 @@ namespace TIGTestBench
             }
             else
             {
-                totaltime = (time.ElapsedMilliseconds - timer1.Interval).ToString() ; // tehnicki vreme za zvanje endbestmove-a,treba da bude 0 ili <0
+                totaltime = (time.ElapsedMilliseconds - timer1.Interval).ToString() ; // tehnicki vreme za zvanje endbestmove-a,treba da bude 0 ili <0 kad bi C# stopwatch radio kako treba
             }
             MessageBox.Show("zavrsio za" + totaltime + "ms \r\n potez: \r\n" + potez);
             time.Reset();
